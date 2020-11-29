@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board">
+
+	<insert id="insertBoard" parameterType="BoardVO" useGeneratedKeys="true" keyColumn="board_idx">
+		INSERT INTO BOARD
+		(Board_title,Board_writer,Board_day,Board_count,Board_content,department_id)
+		VALUES(#{board_title},#{board_writer},#{board_day},#{board_count},#{board_content},#{department_id})
+	</insert>
+
+	<select id="getBoardList" parameterType="Criteria" resultType="BoardVO">
+		<![CDATA[
+			SELECT board.*, department.Department_name FROM board
+			left outer join department on board.department_id = department.department_id
+			ORDER BY board.Board_idx ASC
+			LIMIT #{startPageNum}, #{perPageNum}
+		]]>
+	</select>
+
+	<select id="getBoardListByDept" parameterType="hashmap" resultType="BoardVO">
+		<![CDATA[
+			SELECT board.*, department.Department_name FROM board
+			left outer join department on board.Department_id = department.Department_id
+			WHERE department.Department_id = #{dept}
+			ORDER BY board.Board_idx ASC
+			LIMIT #{criteria.startPageNum}, #{criteria.perPageNum}
+		]]>
+	</select>
+
+	<select id="getBoardByKeyword" parameterType="hashmap" resultType="BoardVO">
+			<![CDATA[
+			SELECT board.*, department.Department_name FROM board
+			left outer join department on board.Department_id = department.Department_id
+			WHERE board.Board_title
+			LIKE #{keyWord}
+			ORDER BY board.Board_idx ASC
+			LIMIT #{criteria.startPageNum}, #{criteria.perPageNum}
+			]]>
+
+	</select>
+	<select id="getBoardByKeywordDept" parameterType="hashmap" resultType="BoardVO">
+			<![CDATA[
+			SELECT board.*, department.Department_name FROM boards
+			left outer join department on board.Department_id = department.Department_id
+			WHERE board.Board_title
+			LIKE #{keyWord}
+			AND department.Department_id = #{dept}
+			ORDER BY board.Board_idx ASC
+			LIMIT #{criteria.startPageNum}, #{criteria.perPageNum}
+			]]>
+
+	</select>
+	<select id="getBoardByIdx" parameterType="int" resultType="BoardVO">
+		SELECT *
+		FROM BOARD
+		WHERE Board_idx = #{boardIdx}
+	</select>
+
+	<delete id="deleteBoardByIdx" parameterType="int">
+		DELETE
+		FROM BOARD
+		WHERE Board_idx = #{boardIdx};
+	</delete>
+
+	<select id="countBoards" resultType="int">
+		<![CDATA[
+		SELECT COUNT(Board_idx)
+		FROM BOARD
+		WHERE Board_idx > 0 
+		]]>
+	</select>
+	<update id="modifyBoard" parameterType="BoardVO">
+		UPDATE BOARD
+		SET Board_title = #{board_title}, Board_content = #{board_content}, Board_modifier= #{board_modifier},Board_modifyday = #{board_modifyday}
+		WHERE Board_idx = #{board_idx}
+	</update>
+	<update id="countUp" parameterType="int">
+		UPDATE BOARD
+		SET Board_count = Board_count + 1
+		WHERE Board_idx = #{boardIdx};
+	</update>
+</mapper>

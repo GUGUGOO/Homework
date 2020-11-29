@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context" xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jndi="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx" xsi:schemaLocation="http://www.springframework.org/schema/beans 
+   http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+   http://www.springframework.org/schema/context
+   http://www.springframework.org/schema/context/spring-context.xsd
+   http://www.springframework.org/schema/tx
+   http://www.springframework.org/schema/tx/spring-tx.xsd
+   http://www.springframework.org/schema/util
+   http://www.springframework.org/schema/util/spring-util.xsd
+   http://www.springframework.org/schema/jee
+   http://www.springframework.org/schema/jee/spring-jee-4.0.xsd">
+
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<jndi:jndi-lookup jndi-name="jdbc/test" resource-ref="true" id="dataSourceNm" />
+	<bean id="txManagerDB" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourceNm" />
+	</bean>
+	<tx:annotation-driven transaction-manager="txManagerDb" proxy-target-class="true" />
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceNm" />
+		<property name="configLocation" value="WEB-INF/config/mybatisConfig.xml" />
+		<property name="mapperLocations" value="classpath:sql/*.xml" />
+	</bean>
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+	<context:component-scan base-package="com.tys.project" />
+	<context:component-scan base-package="com.tys.project.controller" />
+	<context:component-scan base-package="com.tys.project.utils" />
+	<context:annotation-config />
+</beans>

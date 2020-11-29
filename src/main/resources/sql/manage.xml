@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="manage">
+
+	<!-- 회원 부서 명 조회 -->
+	<select id="getDename" resultType="com.tys.project.vo.DepartmentVO"
+	parameterType="com.tys.project.vo.EnrollVO">
+		SELECT *
+		FROM department
+		WHERE department_id LIKE concat('%', #{enroll_depart_id}, '%')
+	</select>
+	
+	<!-- 회원 리스트 -->
+	<select id="getUserList" resultType="com.tys.project.vo.EnrollVO">
+		SELECT *
+		FROM enroll e, department d
+		WHERE e.Enroll_depart_id = d.department_id
+	</select>
+	
+	<!-- 회원 리스트 페이징 -->
+	<select id="getUserListPage" resultType="com.tys.project.vo.EnrollVO" parameterType="com.tys.project.vo.PagingVO">
+		SELECT *
+		FROM enroll e, department d
+		where e.Enroll_depart_id = d.department_id
+		order by e.Enroll_name asc
+		limit #{pageStart}, #{perPageNum}
+	</select>
+	
+	<!-- 회원 리스트 페이징 + 서치 -->
+	<select id="getUserListPageSearch" resultType="com.tys.project.vo.EnrollVO" parameterType="com.tys.project.vo.EnrollVO">
+		SELECT *
+		FROM	(
+				SELECT	*,
+						ROW_NUMBER() OVER(ORDER BY ENROLL_ID DESC) AS RNUM
+				FROM	enroll e, department d
+				<where>
+					<if test="enroll_category == '03' ">
+						AND e.ENROLL_DEPART_ID = d.department_id
+						AND e.ENROLL_DEPART_ID = #{enroll_depart_id}
+					</if>
+					<if test="enroll_category == '02' ">
+						AND e.ENROLL_DEPART_ID = d.department_id
+						AND e.ENROLL_DEPART_ID = #{enroll_depart_id}
+					</if>
+					<if test="enroll_category == '01' ">
+						AND e.ENROLL_DEPART_ID = d.department_id
+					</if>
+					
+					<include refid="search"></include>
+				</where> 
+				
+				) web
+		WHERE RNUM between #{rowStart} and #{rowEnd}
+		ORDER BY ENROLL_ID DESC
+	</select>
+	
+	<!-- (신)회원 총 인원 : 동적 쿼리 추가 -->
+	<select id="listCount" resultType="int" parameterType="com.tys.project.vo.EnrollVO">
+		SELECT	COUNT(*)
+		FROM	enroll e, department d
+		<where>
+				<if test="enroll_category == '03' ">
+						AND e.ENROLL_DEPART_ID = d.department_id
+						AND e.ENROLL_DEPART_ID = #{enroll_depart_id}
+						<include refid="search"></include>
+				</if>
+				<if test="enroll_category == '02' ">
+						AND e.ENROLL_DEPART_ID = d.department_id
+						AND e.ENROLL_DEPART_ID = #{enroll_depart_id}
+						<include refid="search"></include>
+				</if>
+				<if test="enroll_category == '01' ">
+						AND e.ENROLL_DEPART_ID = d.department_id
+						<include refid="search"></include>
+				</if>
+		</where> 
+	</select>
+	
+	<!-- 동적 쿼리 : search -->
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 'd'.toString()"> AND d.DEPARTMENT_NAME LIKE CONCAT('%',#{keyword},'%')</if>
+			<if test="searchType == 'e'.toString()"> AND e.ENROLL_NAME LIKE CONCAT('%',#{keyword},'%')</if>
+		</if>
+	</sql>
+	
+	
+	<!-- (구)회원 총 인원 -->
+	<select id="xlistCount" resultType="int">
+		SELECT COUNT(*)
+		FROM enroll
+	</select>
+	
+	<!-- 회원 상세 조회 -->
+	<select id="getUserView" resultType="com.tys.project.vo.EnrollVO"
+	parameterType="String">
+		select *
+		from enroll e, department d
+		where e.Enroll_id = #{enroll_id}
+		and e.Enroll_depart_id = d.department_id
+	</select>
+
+	<!-- todo image DB notnull, 경로명 대입하기 -->
+	<insert id="insertUser" parameterType="com.tys.project.vo.EnrollVO">
+		insert into enroll 
+		(Enroll_name, Enroll_id, Enroll_password, 
+		Enroll_birth, Enroll_phone, Enroll_mail, 
+		Enroll_category, Enroll_depart_id, Enroll_image)
+		values 
+		(#{Enroll_name}, #{Enroll_id}, #{Enroll_password},
+		 #{enroll_birth}, #{enroll_phone}, #{enroll_mail},
+		 #{enroll_category}, #{enroll_depart_id}, #{enroll_image})
+	</insert>
+
+<!-- 활성화 -->
+	<update id="doActive" parameterType="com.tys.project.vo.EnrollVO">
+		update 
+			enroll
+		set 
+			Enroll_isActivate = #{Enroll_isActivate},
+			Enroll_count = 0
+		where 
+			Enroll_id = #{Enroll_id}
+	</update>
+	
+<!-- 유저 수정 -->
+	<update id="updateUser" parameterType="com.tys.project.vo.EnrollVO">
+		update 
+			enroll
+		set
+			Enroll_name = #{Enroll_name},
+			Enroll_password = #{Enroll_password}, 
+			Enroll_phone = #{Enroll_phone},
+			Enroll_mail = #{Enroll_mail},
+			Enroll_depart_id = #{Enroll_depart_id},
+			Enroll_category = #{Enroll_category}
+		where
+			Enroll_id = #{Enroll_id}
+	</update>
+
+<!-- 유저 수정 with img-->
+	<update id="updateUserWithImg" parameterType="com.tys.project.vo.EnrollVO">
+		update 
+			enroll
+		set
+			Enroll_name = #{Enroll_name},
+			Enroll_password = #{Enroll_password}, 
+			Enroll_phone = #{Enroll_phone},
+			Enroll_mail = #{Enroll_mail},
+			Enroll_depart_id = #{Enroll_depart_id},
+			Enroll_category = #{Enroll_category},
+			Enroll_image = #{Enroll_image}
+		where
+			Enroll_id = #{Enroll_id}
+	</update>
+	
+	<!-- 유저 삭제 with ID -->
+	<delete id="deleteUser" parameterType = "String">
+		delete from enroll where enroll_id = #{Enroll_id}
+	</delete>
+	
+	<update id="doPassClear" parameterType="com.tys.project.vo.EnrollVO">
+		update
+			enroll
+		set
+			Enroll_password = #{enroll_id},
+			Enroll_isActivate = true,
+			Enroll_count = 0
+		where
+			Enroll_id = #{enroll_id}
+	</update>
+	
+	<!-- 부서 리스트 -->
+	<select id="getDpList" resultType="com.tys.project.vo.DepartmentVO">
+		select *
+		from department
+	</select>
+	
+</mapper>

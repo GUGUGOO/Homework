@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="notice">
+
+	<insert id="insertNotice" parameterType="NoticeVO"
+		useGeneratedKeys="true" keyColumn="notice_idx">
+		INSERT INTO NOTICE
+		(Notice_title,Notice_writer,Notice_day,Notice_count,Notice_content,department_id)
+		VALUES(#{notice_title},#{notice_writer},#{notice_day},#{notice_count},#{notice_content},#{department_id})
+	</insert>
+
+	<select id="getNoticeList" parameterType="Criteria"
+		resultType="NoticeVO">
+		<![CDATA[
+			SELECT notice.*, department.Department_name FROM notice
+			left outer join department on notice.Department_id = department.Department_id
+			ORDER BY notice.Notice_idx ASC
+			LIMIT #{startPageNum}, #{perPageNum}
+		]]>
+	</select>
+
+	<select id="getNoticeListByDept" parameterType="hashmap"
+		resultType="NoticeVO">
+		<![CDATA[
+			SELECT notice.*, department.Department_name FROM notice
+			left outer join department on notice.Department_id = department.Department_id
+			WHERE department.Department_id = #{dept}
+			ORDER BY notice.Notice_idx ASC
+			LIMIT #{criteria.startPageNum}, #{criteria.perPageNum}
+		]]>
+	</select>
+
+	<select id="getNoticeByKeyword" parameterType="hashmap"
+		resultType="NoticeVO">
+			<![CDATA[
+			SELECT notice.*, department.Department_name FROM notice
+			left outer join department on notice.Department_id = department.Department_id
+			WHERE notice.Notice_title
+			LIKE #{keyWord}
+			ORDER BY notice.Notice_idx ASC
+			LIMIT #{criteria.startPageNum}, #{criteria.perPageNum}
+			]]>
+
+	</select>
+	<select id="getNoticeByKeywordDept" parameterType="hashmap"
+		resultType="NoticeVO">
+			<![CDATA[
+			SELECT notice.*, department.Department_name FROM notices
+			left outer join department on notice.Department_id = department.Department_id
+			WHERE notice.Notice_title
+			LIKE #{keyWord}
+			AND department.Department_id = #{dept}
+			ORDER BY notice.Notice_idx ASC
+			LIMIT #{criteria.startPageNum}, #{criteria.perPageNum}
+			]]>
+
+	</select>
+	<select id="getNoticeByIdx" parameterType="int"
+		resultType="NoticeVO">
+		SELECT *
+		FROM NOTICE
+		WHERE Notice_idx = #{noticeIdx}
+	</select>
+
+	<delete id="deleteNoticeByIdx" parameterType="int">
+		DELETE
+		FROM NOTICE
+		WHERE Notice_idx = #{noticeIdx};
+	</delete>
+
+	<select id="countNotices" resultType="int">
+		<![CDATA[
+		SELECT COUNT(Notice_idx)
+		FROM NOTICE
+		WHERE Notice_idx > 0 
+		]]>
+	</select>
+	<update id="modifyNotice" parameterType="NoticeVO">
+		UPDATE NOTICE
+		SET Notice_title = #{notice_title}, Notice_content = #{notice_content}, Notice_modifier= #{notice_modifier},Notice_modifyday = #{notice_modifyday}
+		WHERE Notice_idx = #{notice_idx}
+	</update>
+
+	<update id="countUp" parameterType="int">
+		UPDATE NOTICE
+		SET Notice_count
+		= Notice_count + 1
+		WHERE Notice_idx = #{noticeIdx};
+	</update>
+</mapper>

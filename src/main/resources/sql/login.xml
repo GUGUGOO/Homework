@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="login">
+	<select id="login" resultType="com.tys.project.vo.EnrollVO">
+		SELECT *
+		FROM enroll
+		WHERE Enroll_id = #{enroll_id}
+		AND Enroll_password = #{enroll_password}
+	</select>
+	<select id="checkID" resultType="com.tys.project.vo.EnrollVO">
+		SELECT *
+		FROM enroll
+		WHERE Enroll_id = #{enroll_id}
+	</select>
+	<select id="checkPW" resultType="com.tys.project.vo.EnrollVO">
+		SELECT *
+		FROM enroll
+		WHERE Enroll_id = #{enroll_id}
+		AND Enroll_password = #{enroll_password}
+	</select>
+
+	<update id="increTry" parameterType="com.tys.project.vo.EnrollVO">
+		update
+		enroll
+		set
+		Enroll_count = Enroll_count + 1
+		where
+		Enroll_id = #{Enroll_id}
+	</update>
+
+	<update id="lockUser" parameterType="com.tys.project.vo.EnrollVO">
+		update
+		enroll
+		set
+		Enroll_isActivate = FALSE
+		where
+		Enroll_id = #{Enroll_id}
+	</update>
+
+</mapper>

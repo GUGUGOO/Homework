@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="callSettersOnNulls" value="true"/>
+	</settings>
+	<typeAliases>
+		<typeAlias alias="EnrollVo" type="com.tys.project.vo.EnrollVO" />
+		<typeAlias alias="BoardVO" type="com.tys.project.vo.BoardVO"/>
+		<typeAlias alias="Criteria" type="com.tys.project.paging.Criteria"/>
+		<typeAlias alias="DepartmentVO" type="com.tys.project.vo.DepartmentVO"/>
+		<typeAlias alias="NoticeVO" type="com.tys.project.vo.NoticeVO"/>
+		<typeAlias alias="PagingSearchVO" type="com.tys.project.vo.PagingSearchVO"/>
+		<typeAlias alias="PagingVO" type="com.tys.project.vo.PagingVO"/>
+		<typeAlias alias="PageMaker" type="com.tys.project.vo.PageMaker"/>
+	</typeAliases>
+
+</configuration>
